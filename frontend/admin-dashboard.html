@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Superusuario - Rezervilo</title>
+    <link rel="stylesheet" href="css/dashboard-admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Loader para operaciones AJAX -->
+    <div id="loader" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Login Container -->
+    <div id="login-container" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1><i class="fas fa-crown"></i> Superusuario</h1>
+                <p>Panel de Administración</p>
+            </div>
+            
+            <form id="admin-login-form" class="login-form">
+                <div class="form-group">
+                    <label for="admin-username">Usuario Administrador</label>
+                    <input type="text" id="admin-username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="admin-password">Contraseña</label>
+                    <input type="password" id="admin-password" name="password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Acceder como Admin
+                </button>
+                
+                <div id="admin-login-error" class="error-message hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Container -->
+    <div id="admin-dashboard-container" class="dashboard-container hidden">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1><i class="fas fa-crown"></i> Panel Superusuario</h1>
+            </div>
+            <div class="header-right">
+                <span id="admin-username-display" class="user-info"></span>
+                <button id="admin-logout-btn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="dashboard-main">
+            <!-- Sidebar -->
+            <aside class="dashboard-sidebar">
+                <nav class="nav-menu">
+                    <a href="#" class="nav-item active" data-section="admin-dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="#" class="nav-item" data-section="admin-emprendimientos">
+                        <i class="fas fa-store-alt"></i> Emprendimientos
+                    </a>
+                    <a href="#" class="nav-item" data-section="admin-users">
+                        <i class="fas fa-users"></i> Gestión de Usuarios
+                    </a>
+                    <a href="#" class="nav-item" data-section="admin-clientes">
+                        <i class="fas fa-building"></i> Gestión de Clientes
+                    </a>
+                    <a href="#" class="nav-item" data-section="admin-bots">
+                        <i class="fas fa-robot"></i> Bots Globales
+                    </a>
+                    <a href="#" class="nav-item" data-section="admin-reservations">
+                        <i class="fas fa-calendar"></i> Reservas Globales
+                    </a>
+                    <a href="#" class="nav-item" data-section="admin-stats">
+                        <i class="fas fa-chart-bar"></i> Estadísticas
+                    </a>
+                    <a href="#" class="nav-item" data-section="admin-settings">
+                        <i class="fas fa-cog"></i> Configuración
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="dashboard-content">
+                <!-- Dashboard Section -->
+                <section id="admin-dashboard-section" class="content-section active">
+                    <div class="section-header">
+                        <h2>Panel de Control - Superusuario</h2>
+                        <p>Vista general del sistema completo</p>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-users-admin">0</h3>
+                                <p>Total Usuarios</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-clientes-admin">0</h3>
+                                <p>Total Clientes</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-bots-admin">0</h3>
+                                <p>Total Bots</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-reservations-admin">0</h3>
+                                <p>Total Reservas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Overview -->
+                    <div class="admin-overview">
+                        <div class="overview-section">
+                            <h3><i class="fas fa-chart-line"></i> Actividad Reciente</h3>
+                            <div id="recent-activity-admin" class="activity-list">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                        </div>
+
+                        <div class="overview-section">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Alertas del Sistema</h3>
+                            <div id="system-alerts-admin" class="alerts-list">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Emprendimientos Management Section -->
+                <section id="admin-emprendimientos-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Gestión de Emprendimientos</h2>
+                        <div class="section-controls">
+                            <button id="add-emprendimiento-btn" class="primary-btn">
+                                <i class="fas fa-plus"></i> Nuevo Emprendimiento
+                            </button>
+                            <button id="refresh-emprendimientos-btn" class="secondary-btn">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas de Emprendimientos -->
+                    <div class="stats-grid">
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-emprendimientos-count">0</h3>
+                                <p>Total Emprendimientos</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="emprendimientos-activos-count">0</h3>
+                                <p>Activos</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-pause-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="emprendimientos-suspendidos-count">0</h3>
+                                <p>Suspendidos</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card danger">
+                            <div class="stat-icon">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="emprendimientos-inactivos-count">0</h3>
+                                <p>Inactivos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros y Búsqueda -->
+                    <div class="filters-container">
+                        <div class="search-container">
+                            <input type="text" id="emprendimientos-search" placeholder="Buscar emprendimiento..." class="search-input">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <select id="emprendimientos-status-filter" class="filter-select">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activos</option>
+                            <option value="suspendido">Suspendidos</option>
+                            <option value="inactivo">Inactivos</option>
+                        </select>
+                        <select id="emprendimientos-order-filter" class="filter-select">
+                            <option value="-fecha_registro">Más recientes</option>
+                            <option value="fecha_registro">Más antiguos</option>
+                            <option value="nombre_emprendimiento">Nombre A-Z</option>
+                            <option value="-nombre_emprendimiento">Nombre Z-A</option>
+                        </select>
+                    </div>
+
+                    <!-- Tabla de Emprendimientos -->
+                    <div class="table-container">
+                        <table class="data-table" id="emprendimientos-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre Emprendimiento</th>
+                                    <th>Usuario</th>
+                                    <th>Cantidad de Bots</th>
+                                    <th>Status</th>
+                                    <th>Ingreso desde</th>
+                                    <th>Cantidad de Reservas</th>
+                                    <th>Límite Bots</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emprendimientos-table-body">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            <span id="emprendimientos-pagination-info">Mostrando 0 de 0 emprendimientos</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="emprendimientos-prev-page" class="pagination-btn" disabled>
+                                <i class="fas fa-chevron-left"></i> Anterior
+                            </button>
+                            <span id="emprendimientos-page-numbers" class="page-numbers">
+                                <!-- Se genera dinámicamente -->
+                            </span>
+                            <button id="emprendimientos-next-page" class="pagination-btn" disabled>
+                                Siguiente <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Users Management Section -->
+                <section id="admin-users-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Gestión de Usuarios</h2>
+                        <button id="add-user-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> Agregar Usuario
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Último Acceso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Clientes Management Section -->
+                <section id="admin-clientes-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Gestión de Clientes</h2>
+                        <button id="add-cliente-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> Agregar Cliente
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Emprendimiento</th>
+                                    <th>Usuario</th>
+                                    <th>Teléfono</th>
+                                    <th>Bots</th>
+                                    <th>Reservas</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-table-body">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Global Bots Section -->
+                <section id="admin-bots-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Bots Globales</h2>
+                        <div class="section-controls">
+                            <select id="bot-filter-cliente" class="filter-select">
+                                <option value="">Todos los clientes</option>
+                            </select>
+                            <select id="bot-filter-status" class="filter-select">
+                                <option value="">Todos los estados</option>
+                                <option value="true">Activos</option>
+                                <option value="false">Inactivos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="admin-bots-grid" class="admin-bots-grid">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- Global Reservations Section -->
+                <section id="admin-reservations-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Reservas Globales</h2>
+                        <div class="section-controls">
+                            <input type="date" id="reservations-date-filter" class="date-filter">
+                            <select id="reservations-status-filter" class="filter-select">
+                                <option value="">Todos los estados</option>
+                                <option value="Confirmada">Confirmadas</option>
+                                <option value="Pendiente">Pendientes</option>
+                                <option value="Cancelada">Canceladas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Bot</th>
+                                    <th>Servicio</th>
+                                    <th>Estado</th>
+                                    <th>Cliente Final</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-reservations-table-body">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Statistics Section -->
+                <section id="admin-stats-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Estadísticas del Sistema</h2>
+                    </div>
+
+                    <div class="stats-dashboard">
+                        <div class="chart-container">
+                            <h3>Crecimiento de Usuarios</h3>
+                            <div id="users-growth-chart" class="chart-placeholder">
+                                📊 Gráfico de crecimiento de usuarios
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3>Reservas por Mes</h3>
+                            <div id="reservations-chart" class="chart-placeholder">
+                                📈 Gráfico de reservas mensuales
+                            </div>
+                        </div>
+
+                        <div class="stats-summary">
+                            <h3>Resumen General</h3>
+                            <div id="stats-summary-content">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="admin-settings-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Configuración del Sistema</h2>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <h3><i class="fas fa-database"></i> Base de Datos</h3>
+                            <button class="secondary-btn">
+                                <i class="fas fa-download"></i> Backup
+                            </button>
+                            <button class="secondary-btn">
+                                <i class="fas fa-broom"></i> Limpiar Logs
+                            </button>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3><i class="fas fa-envelope"></i> Notificaciones</h3>
+                            <button class="secondary-btn">
+                                <i class="fas fa-cog"></i> Configurar Email
+                            </button>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3><i class="fas fa-shield-alt"></i> Seguridad</h3>
+                            <button class="secondary-btn">
+                                <i class="fas fa-key"></i> Regenerar Claves
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals para Emprendimientos -->
+    
+    <!-- Modal para Crear/Editar Emprendimiento -->
+    <div id="emprendimiento-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="emprendimiento-modal-title">Nuevo Emprendimiento</h3>
+                <span class="close" onclick="closeEmprendimientoModal()">&times;</span>
+            </div>
+            <form id="emprendimiento-form">
+                <div class="form-group">
+                    <label for="emprendimiento-username">Usuario:</label>
+                    <input type="text" id="emprendimiento-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="emprendimiento-email">Email:</label>
+                    <input type="email" id="emprendimiento-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="emprendimiento-password">Contraseña:</label>
+                    <input type="password" id="emprendimiento-password" name="password">
+                    <small class="form-help">Dejar en blanco para mantener la actual (solo edición)</small>
+                </div>
+                <div class="form-group">
+                    <label for="emprendimiento-nombre">Nombre del Emprendimiento:</label>
+                    <input type="text" id="emprendimiento-nombre" name="nombre_emprendimiento" required>
+                </div>
+                <div class="form-group">
+                    <label for="emprendimiento-telefono">Teléfono:</label>
+                    <input type="tel" id="emprendimiento-telefono" name="telefono">
+                </div>
+                <div class="form-group">
+                    <label for="emprendimiento-status">Estado:</label>
+                    <select id="emprendimiento-status" name="status" required>
+                        <option value="activo">Activo</option>
+                        <option value="suspendido">Suspendido</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="emprendimiento-max-bots">Límite de Bots:</label>
+                    <input type="number" id="emprendimiento-max-bots" name="max_bots_allowed" min="1" max="50" value="5">
+                </div>
+                <div class="form-group">
+                    <label for="emprendimiento-notas">Notas del Administrador:</label>
+                    <textarea id="emprendimiento-notas" name="notas_admin" rows="3" placeholder="Notas internas..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" onclick="closeEmprendimientoModal()">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <span id="emprendimiento-submit-text">Crear Emprendimiento</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Cambiar Status -->
+    <div id="status-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cambiar Estado del Emprendimiento</h3>
+                <span class="close" onclick="closeStatusModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres cambiar el estado de <strong id="status-emprendimiento-name"></strong>?</p>
+                <div class="form-group">
+                    <label for="new-status-select">Nuevo Estado:</label>
+                    <select id="new-status-select" class="form-control">
+                        <option value="activo">Activo</option>
+                        <option value="suspendido">Suspendido</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status-reason">Razón del cambio:</label>
+                    <textarea id="status-reason" placeholder="Opcional: Razón del cambio de estado..." rows="3"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="secondary-btn" onclick="closeStatusModal()">Cancelar</button>
+                <button type="button" class="primary-btn" onclick="confirmStatusChange()">Cambiar Estado</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cambiar Límite de Bots -->
+    <div id="bot-limit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modificar Límite de Bots</h3>
+                <span class="close" onclick="closeBotLimitModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Modificar límite de bots para <strong id="bot-limit-emprendimiento-name"></strong></p>
+                <div class="form-group">
+                    <label for="new-bot-limit">Nuevo Límite de Bots:</label>
+                    <input type="number" id="new-bot-limit" min="1" max="50" class="form-control">
+                    <small class="form-help">Límite actual: <span id="current-bot-limit"></span></small>
+                </div>
+                <div class="form-group">
+                    <label for="bot-limit-reason">Razón del cambio:</label>
+                    <textarea id="bot-limit-reason" placeholder="Opcional: Razón del cambio de límite..." rows="3"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="secondary-btn" onclick="closeBotLimitModal()">Cancelar</button>
+                <button type="button" class="primary-btn" onclick="confirmBotLimitChange()">Actualizar Límite</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Eliminación -->
+    <div id="delete-emprendimiento-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Eliminar Emprendimiento</h3>
+                <span class="close" onclick="closeDeleteEmprendimientoModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="warning-container">
+                    <i class="fas fa-exclamation-triangle warning-icon"></i>
+                    <p><strong>¡Atención!</strong> Esta acción no se puede deshacer.</p>
+                </div>
+                <p>¿Estás seguro de que quieres eliminar el emprendimiento <strong id="delete-emprendimiento-name"></strong>?</p>
+                <p class="text-danger">Se eliminarán también todos los bots y reservas asociados.</p>
+                <div class="form-group">
+                    <label for="delete-confirmation">Para confirmar, escribe "ELIMINAR":</label>
+                    <input type="text" id="delete-confirmation" placeholder="Escribe ELIMINAR para confirmar" class="form-control">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="secondary-btn" onclick="closeDeleteEmprendimientoModal()">Cancelar</button>
+                <button type="button" class="danger-btn" id="confirm-delete-emprendimiento" onclick="confirmDeleteEmprendimiento()" disabled>
+                    Eliminar Emprendimiento
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Base configuration
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // Utility functions
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function fetchAPI(endpoint, options = {}) {
+            const token = getToken();
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            };
+            
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                ...defaultOptions,
+                ...options
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple notification system
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 10000;
+                color: white;
+                font-weight: bold;
+                ${type === 'success' ? 'background-color: #28a745;' : ''}
+                ${type === 'error' ? 'background-color: #dc3545;' : ''}
+                ${type === 'warning' ? 'background-color: #ffc107; color: #212529;' : ''}
+                ${type === 'info' ? 'background-color: #17a2b8;' : ''}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function showLoader() {
+            document.getElementById('loader').style.display = 'flex';
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to corresponding nav item
+            document.querySelector(`[onclick="showSection('${sectionId}')"]`).classList.add('active');
+            
+            // Load section data
+            if (sectionId === 'admin-emprendimientos-section') {
+                loadEmprendimientos();
+            }
+        }
+
+        // Variables globales para emprendimientos
+        let currentEmprendimientoPage = 1;
+        let emprendimientoTotalPages = 1;
+        let currentEmprendimientoId = null;
+
+        // Funciones para gestión de emprendimientos
+        async function loadEmprendimientos(page = 1, search = '', status = '', ordering = '-fecha_registro') {
+            try {
+                showLoader();
+                const params = new URLSearchParams({
+                    page: page,
+                    search: search,
+                    status: status,
+                    ordering: ordering
+                });
+
+                const response = await fetchAPI(`/api/admin/emprendimientos/?${params}`);
+                
+                if (response.results) {
+                    displayEmprendimientos(response.results);
+                    updateEmprendimientosPagination(response);
+                    updateEmprendimientosStats(response.results);
+                    currentEmprendimientoPage = page;
+                    emprendimientoTotalPages = Math.ceil(response.count / 10);
+                }
+                
+                hideLoader();
+            } catch (error) {
+                console.error('Error loading emprendimientos:', error);
+                showNotification('Error al cargar emprendimientos', 'error');
+                hideLoader();
+            }
+        }
+
+        function displayEmprendimientos(emprendimientos) {
+            const tbody = document.getElementById('emprendimientos-table-body');
+            tbody.innerHTML = '';
+
+            emprendimientos.forEach(emprendimiento => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="emprendimiento-info">
+                            <strong>${emprendimiento.nombre_emprendimiento}</strong>
+                            <br>
+                            <small class="text-muted">${emprendimiento.telefono || 'Sin teléfono'}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="user-info">
+                            <strong>${emprendimiento.username}</strong>
+                            <br>
+                            <small class="text-muted">${emprendimiento.email}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge ${emprendimiento.cantidad_bots > 0 ? 'badge-primary' : 'badge-secondary'}">
+                            ${emprendimiento.cantidad_bots} bots
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${emprendimiento.status}">
+                            ${getStatusText(emprendimiento.status)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="date-text">
+                            ${formatDate(emprendimiento.fecha_registro)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-info">
+                            ${emprendimiento.cantidad_reservas || 0} reservas
+                        </span>
+                    </td>
+                    <td>
+                        <div class="bot-limit-info">
+                            <span class="limit-text">${emprendimiento.cantidad_bots}/${emprendimiento.max_bots_allowed}</span>
+                            <button class="btn-icon" onclick="openBotLimitModal(${emprendimiento.id}, '${emprendimiento.nombre_emprendimiento}', ${emprendimiento.max_bots_allowed})" title="Modificar límite">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon btn-view" onclick="viewEmprendimientoProfile(${emprendimiento.id})" title="Ver perfil">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon btn-edit" onclick="editEmprendimiento(${emprendimiento.id})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon btn-status" onclick="openStatusModal(${emprendimiento.id}, '${emprendimiento.nombre_emprendimiento}', '${emprendimiento.status}')" title="Cambiar estado">
+                                <i class="fas fa-exchange-alt"></i>
+                            </button>
+                            <button class="btn-icon btn-delete" onclick="openDeleteEmprendimientoModal(${emprendimiento.id}, '${emprendimiento.nombre_emprendimiento}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateEmprendimientosStats(emprendimientos) {
+            const total = emprendimientos.length;
+            const activos = emprendimientos.filter(e => e.status === 'activo').length;
+            const suspendidos = emprendimientos.filter(e => e.status === 'suspendido').length;
+            const inactivos = emprendimientos.filter(e => e.status === 'inactivo').length;
+
+            document.getElementById('total-emprendimientos-count').textContent = total;
+            document.getElementById('emprendimientos-activos-count').textContent = activos;
+            document.getElementById('emprendimientos-suspendidos-count').textContent = suspendidos;
+            document.getElementById('emprendimientos-inactivos-count').textContent = inactivos;
+        }
+
+        function updateEmprendimientosPagination(response) {
+            const info = document.getElementById('emprendimientos-pagination-info');
+            const prevBtn = document.getElementById('emprendimientos-prev-page');
+            const nextBtn = document.getElementById('emprendimientos-next-page');
+            const pageNumbers = document.getElementById('emprendimientos-page-numbers');
+
+            const start = ((response.page || 1) - 1) * 10 + 1;
+            const end = Math.min(start + response.results.length - 1, response.count);
+            
+            info.textContent = `Mostrando ${start}-${end} de ${response.count} emprendimientos`;
+
+            prevBtn.disabled = !response.previous;
+            nextBtn.disabled = !response.next;
+
+            // Generar números de página
+            pageNumbers.innerHTML = '';
+            const totalPages = Math.ceil(response.count / 10);
+            const currentPage = response.page || 1;
+
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => loadEmprendimientos(i, getEmprendimientoFilters().search, getEmprendimientoFilters().status, getEmprendimientoFilters().ordering);
+                pageNumbers.appendChild(pageBtn);
+            }
+        }
+
+        function getEmprendimientoFilters() {
+            return {
+                search: document.getElementById('emprendimientos-search').value,
+                status: document.getElementById('emprendimientos-status-filter').value,
+                ordering: document.getElementById('emprendimientos-order-filter').value
+            };
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'activo': 'Activo',
+                'suspendido': 'Suspendido',
+                'inactivo': 'Inactivo'
+            };
+            return statusMap[status] || status;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'No disponible';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Funciones para modales de emprendimientos
+        function openEmprendimientoModal(emprendimiento = null) {
+            const modal = document.getElementById('emprendimiento-modal');
+            const form = document.getElementById('emprendimiento-form');
+            const title = document.getElementById('emprendimiento-modal-title');
+            const submitText = document.getElementById('emprendimiento-submit-text');
+
+            if (emprendimiento) {
+                title.textContent = 'Editar Emprendimiento';
+                submitText.textContent = 'Actualizar Emprendimiento';
+                currentEmprendimientoId = emprendimiento.id;
+                
+                // Llenar formulario con datos existentes
+                document.getElementById('emprendimiento-username').value = emprendimiento.username;
+                document.getElementById('emprendimiento-email').value = emprendimiento.email;
+                document.getElementById('emprendimiento-password').value = '';
+                document.getElementById('emprendimiento-nombre').value = emprendimiento.nombre_emprendimiento;
+                document.getElementById('emprendimiento-telefono').value = emprendimiento.telefono || '';
+                document.getElementById('emprendimiento-status').value = emprendimiento.status;
+                document.getElementById('emprendimiento-max-bots').value = emprendimiento.max_bots_allowed;
+                document.getElementById('emprendimiento-notas').value = emprendimiento.notas_admin || '';
+            } else {
+                title.textContent = 'Nuevo Emprendimiento';
+                submitText.textContent = 'Crear Emprendimiento';
+                currentEmprendimientoId = null;
+                form.reset();
+                document.getElementById('emprendimiento-max-bots').value = 5;
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeEmprendimientoModal() {
+            document.getElementById('emprendimiento-modal').style.display = 'none';
+            currentEmprendimientoId = null;
+        }
+
+        async function handleEmprendimientoSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Si no hay contraseña y es edición, no incluir el campo
+            if (!data.password && currentEmprendimientoId) {
+                delete data.password;
+            }
+
+            try {
+                showLoader();
+                let response;
+                
+                if (currentEmprendimientoId) {
+                    response = await fetchAPI(`/api/admin/emprendimientos/${currentEmprendimientoId}/`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    response = await fetchAPI('/api/admin/emprendimientos/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+
+                showNotification(
+                    currentEmprendimientoId ? 'Emprendimiento actualizado exitosamente' : 'Emprendimiento creado exitosamente',
+                    'success'
+                );
+                closeEmprendimientoModal();
+                loadEmprendimientos(currentEmprendimientoPage);
+                hideLoader();
+                
+            } catch (error) {
+                console.error('Error saving emprendimiento:', error);
+                showNotification('Error al guardar emprendimiento', 'error');
+                hideLoader();
+            }
+        }
+
+        async function editEmprendimiento(id) {
+            try {
+                showLoader();
+                const emprendimiento = await fetchAPI(`/api/admin/emprendimientos/${id}/`);
+                openEmprendimientoModal(emprendimiento);
+                hideLoader();
+            } catch (error) {
+                console.error('Error loading emprendimiento:', error);
+                showNotification('Error al cargar datos del emprendimiento', 'error');
+                hideLoader();
+            }
+        }
+
+        function openStatusModal(id, name, currentStatus) {
+            currentEmprendimientoId = id;
+            document.getElementById('status-emprendimiento-name').textContent = name;
+            document.getElementById('new-status-select').value = currentStatus;
+            document.getElementById('status-modal').style.display = 'block';
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').style.display = 'none';
+            currentEmprendimientoId = null;
+        }
+
+        async function confirmStatusChange() {
+            const newStatus = document.getElementById('new-status-select').value;
+            const reason = document.getElementById('status-reason').value;
+
+            try {
+                showLoader();
+                await fetchAPI(`/api/admin/emprendimientos/${currentEmprendimientoId}/change_status/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        reason: reason
+                    })
+                });
+
+                showNotification('Estado actualizado exitosamente', 'success');
+                closeStatusModal();
+                loadEmprendimientos(currentEmprendimientoPage);
+                hideLoader();
+                
+            } catch (error) {
+                console.error('Error changing status:', error);
+                showNotification('Error al cambiar estado', 'error');
+                hideLoader();
+            }
+        }
+
+        function openBotLimitModal(id, name, currentLimit) {
+            currentEmprendimientoId = id;
+            document.getElementById('bot-limit-emprendimiento-name').textContent = name;
+            document.getElementById('current-bot-limit').textContent = currentLimit;
+            document.getElementById('new-bot-limit').value = currentLimit;
+            document.getElementById('bot-limit-modal').style.display = 'block';
+        }
+
+        function closeBotLimitModal() {
+            document.getElementById('bot-limit-modal').style.display = 'none';
+            currentEmprendimientoId = null;
+        }
+
+        async function confirmBotLimitChange() {
+            const newLimit = document.getElementById('new-bot-limit').value;
+            const reason = document.getElementById('bot-limit-reason').value;
+
+            try {
+                showLoader();
+                await fetchAPI(`/api/admin/emprendimientos/${currentEmprendimientoId}/update_bot_limit/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        max_bots_allowed: parseInt(newLimit),
+                        reason: reason
+                    })
+                });
+
+                showNotification('Límite de bots actualizado exitosamente', 'success');
+                closeBotLimitModal();
+                loadEmprendimientos(currentEmprendimientoPage);
+                hideLoader();
+                
+            } catch (error) {
+                console.error('Error updating bot limit:', error);
+                showNotification('Error al actualizar límite de bots', 'error');
+                hideLoader();
+            }
+        }
+
+        function openDeleteEmprendimientoModal(id, name) {
+            currentEmprendimientoId = id;
+            document.getElementById('delete-emprendimiento-name').textContent = name;
+            document.getElementById('delete-confirmation').value = '';
+            document.getElementById('confirm-delete-emprendimiento').disabled = true;
+            document.getElementById('delete-emprendimiento-modal').style.display = 'block';
+        }
+
+        function closeDeleteEmprendimientoModal() {
+            document.getElementById('delete-emprendimiento-modal').style.display = 'none';
+            currentEmprendimientoId = null;
+        }
+
+        async function confirmDeleteEmprendimiento() {
+            try {
+                showLoader();
+                await fetchAPI(`/api/admin/emprendimientos/${currentEmprendimientoId}/`, {
+                    method: 'DELETE'
+                });
+
+                showNotification('Emprendimiento eliminado exitosamente', 'success');
+                closeDeleteEmprendimientoModal();
+                loadEmprendimientos(currentEmprendimientoPage);
+                hideLoader();
+                
+            } catch (error) {
+                console.error('Error deleting emprendimiento:', error);
+                showNotification('Error al eliminar emprendimiento', 'error');
+                hideLoader();
+            }
+        }
+
+        function viewEmprendimientoProfile(id) {
+            // Aquí redirigiríamos al perfil del emprendimiento
+            // Por ahora mostraremos una notificación
+            showNotification(`Ver perfil del emprendimiento ID: ${id}`, 'info');
+            // TODO: Implementar navegación al perfil
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticación
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Event listeners para emprendimientos
+            document.getElementById('add-emprendimiento-btn').addEventListener('click', () => openEmprendimientoModal());
+            document.getElementById('refresh-emprendimientos-btn').addEventListener('click', () => loadEmprendimientos(currentEmprendimientoPage));
+            
+            // Form submit
+            document.getElementById('emprendimiento-form').addEventListener('submit', handleEmprendimientoSubmit);
+            
+            // Filtros de búsqueda
+            let searchTimeout;
+            document.getElementById('emprendimientos-search').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const filters = getEmprendimientoFilters();
+                    loadEmprendimientos(1, filters.search, filters.status, filters.ordering);
+                }, 500);
+            });
+            
+            document.getElementById('emprendimientos-status-filter').addEventListener('change', function() {
+                const filters = getEmprendimientoFilters();
+                loadEmprendimientos(1, filters.search, filters.status, filters.ordering);
+            });
+            
+            document.getElementById('emprendimientos-order-filter').addEventListener('change', function() {
+                const filters = getEmprendimientoFilters();
+                loadEmprendimientos(1, filters.search, filters.status, filters.ordering);
+            });
+            
+            // Paginación
+            document.getElementById('emprendimientos-prev-page').addEventListener('click', function() {
+                if (currentEmprendimientoPage > 1) {
+                    const filters = getEmprendimientoFilters();
+                    loadEmprendimientos(currentEmprendimientoPage - 1, filters.search, filters.status, filters.ordering);
+                }
+            });
+            
+            document.getElementById('emprendimientos-next-page').addEventListener('click', function() {
+                if (currentEmprendimientoPage < emprendimientoTotalPages) {
+                    const filters = getEmprendimientoFilters();
+                    loadEmprendimientos(currentEmprendimientoPage + 1, filters.search, filters.status, filters.ordering);
+                }
+            });
+            
+            // Validación de confirmación de eliminación
+            document.getElementById('delete-confirmation').addEventListener('input', function() {
+                const confirmBtn = document.getElementById('confirm-delete-emprendimiento');
+                confirmBtn.disabled = this.value !== 'ELIMINAR';
+            });
+            
+            // Cerrar modales con ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeEmprendimientoModal();
+                    closeStatusModal();
+                    closeBotLimitModal();
+                    closeDeleteEmprendimientoModal();
+                }
+            });
+            
+            // Cerrar modales haciendo click fuera
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+
+            // Mostrar sección por defecto
+            showSection('admin-dashboard-section');
+        });
+    </script>
+</body>
+</html>

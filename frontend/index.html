@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezervilo - Sistema de Reservas</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div id="login-container" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-calendar-check"></i>
+                <h1>Rezervilo</h1>
+                <p>Sistema de Reservas Inteligente</p>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar Sesión
+                </button>
+                
+                <div id="login-error" class="error-message hidden"></div>
+            </form>
+            
+            <div class="login-footer">
+                <p>¿No tienes cuenta? <a href="#" id="register-link">Regístrate aquí</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Principal del Cliente -->
+    <div id="dashboard-container" class="dashboard-container hidden">
+        <!-- Header del Dashboard -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <i class="fas fa-calendar-check"></i>
+                <h1>Rezervilo</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="user-name">Cliente</span>
+                </div>
+                <button id="logout-btn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="#dashboard" class="nav-link" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#bots" class="nav-link" data-section="bots">
+                        <i class="fas fa-robot"></i>
+                        <span>Mis Bots</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#calendar" class="nav-link" data-section="calendar">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Calendario</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#reservations" class="nav-link" data-section="reservations">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Mis Reservas</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <p>Bienvenido a tu panel de control</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-bots">0</h3>
+                            <p>Bots Activos</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-reservations">0</h3>
+                            <p>Reservas Activas</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pending-reservations">0</h3>
+                            <p>Pendientes</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="monthly-bookings">0</h3>
+                            <p>Este Mes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-widgets">
+                    <div class="widget">
+                        <h3><i class="fas fa-calendar-day"></i> Próximas Reservas</h3>
+                        <div id="upcoming-reservations" class="reservation-list">
+                            <!-- Se llenarán dinámicamente -->
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <h3><i class="fas fa-robot"></i> Estado de Bots</h3>
+                        <div id="bot-status" class="bot-status-list">
+                            <!-- Se llenarán dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bots Section -->
+            <section id="bots-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-robot"></i> Gestión de Bots</h2>
+                    <button id="add-bot-btn" class="primary-btn">
+                        <i class="fas fa-plus"></i> Agregar Bot
+                    </button>
+                </div>
+
+                <div class="bots-grid" id="bots-grid">
+                    <!-- Los bots se cargarán dinámicamente aquí -->
+                </div>
+            </section>
+
+            <!-- Calendar Section -->
+            <section id="calendar-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-calendar-alt"></i> Calendario de Reservas</h2>
+                    <div class="calendar-controls">
+                        <button id="prev-month" class="calendar-nav-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h3 id="current-month-year"></h3>
+                        <button id="next-month" class="calendar-nav-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="calendar-container">
+                    <div id="calendar" class="calendar">
+                        <!-- El calendario se generará dinámicamente -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reservations Section -->
+            <section id="reservations-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bookmark"></i> Mis Reservas</h2>
+                    <button id="new-reservation-btn" class="primary-btn">
+                        <i class="fas fa-plus"></i> Nueva Reserva
+                    </button>
+                </div>
+
+                <div class="reservations-table-container">
+                    <table id="reservations-table" class="reservations-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Servicio</th>
+                                <th>Bot</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservations-tbody">
+                            <!-- Las reservas se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para Agregar/Editar Bot -->
+    <div id="bot-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="bot-modal-title">Agregar Bot</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="bot-form" class="modal-form">
+                <div class="form-group">
+                    <label for="bot-name">Nombre del Bot</label>
+                    <input type="text" id="bot-name" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="bot-description">Descripción</label>
+                    <textarea id="bot-description" name="descripcion" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="bot-active">Estado</label>
+                    <select id="bot-active" name="activo">
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="secondary-btn modal-cancel">Cancelar</button>
+                    <button type="submit" class="primary-btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Nueva Reserva -->
+    <div id="reservation-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nueva Reserva</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="reservation-form" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reservation-date">Fecha</label>
+                        <input type="date" id="reservation-date" name="fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reservation-time">Hora</label>
+                        <input type="time" id="reservation-time" name="hora" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reservation-service">Servicio</label>
+                    <select id="reservation-service" name="servicio" required>
+                        <option value="">Seleccionar servicio...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reservation-bot">Bot</label>
+                    <select id="reservation-bot" name="bot" required>
+                        <option value="">Seleccionar bot...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reservation-notes">Notas</label>
+                    <textarea id="reservation-notes" name="notas" rows="3" placeholder="Notas adicionales..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="secondary-btn modal-cancel">Cancelar</button>
+                    <button type="submit" class="primary-btn">Crear Reserva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Cargando...</p>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

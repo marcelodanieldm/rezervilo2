@@ -1,0 +1,30 @@
+body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f7f6; }
+nav { background-color: #333; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+nav h1 { margin: 0; font-size: 1.2em; }
+button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+button:hover { background-color: #0056b3; }
+
+.container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+section { background-color: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; padding: 20px; }
+
+/* Formularios */
+.form-card input[type="text"], .form-card textarea {
+    width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+}
+.form-card textarea { min-height: 100px; }
+
+/* Lista de Bots */
+#bot-list { list-style: none; padding: 0; }
+#bot-list li {
+    background: #fafafa; border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 4px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.bot-actions button { font-size: 0.8em; padding: 5px 8px; }
+.bot-actions .delete-btn { background-color: #dc3545; }
+
+/* Login */
+.login-container { max-width: 400px; margin: 100px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.login-container input { width: 100%; }
+
+.hidden { display: none; }
+.error { color: #dc3545; }

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Rezervilo</title>
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1><i class="fas fa-calendar-alt"></i> Rezervilo</h1>
+                <p>Sistema de Gestión de Reservas</p>
+            </div>
+            
+            <form id="unified-login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i> Usuario
+                    </label>
+                    <input type="text" id="username" name="username" required placeholder="Ingresa tu usuario">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Contraseña
+                    </label>
+                    <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
+                </div>
+                
+                <button type="submit" class="login-btn" id="login-submit-btn">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+                
+                <div id="login-error" class="error-message hidden"></div>
+            </form>
+
+            <div class="login-info">
+                <div class="info-section">
+                    <h3><i class="fas fa-crown"></i> Superusuario</h3>
+                    <p>Acceso completo al sistema para administradores</p>
+                    <ul>
+                        <li>Gestión de usuarios</li>
+                        <li>Gestión de clientes</li>
+                        <li>Vista global de bots y reservas</li>
+                        <li>Estadísticas del sistema</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h3><i class="fas fa-store"></i> Emprendimiento</h3>
+                    <p>Panel de control para clientes</p>
+                    <ul>
+                        <li>Gestión de bots propios</li>
+                        <li>Calendario de reservas</li>
+                        <li>Gestión de servicios</li>
+                        <li>Perfil del emprendimiento</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="login-footer">
+                <p><i class="fas fa-info-circle"></i> 
+                   El sistema detectará automáticamente tu tipo de usuario y te redirigirá al dashboard apropiado.
+                </p>
+            </div>
+        </div>
+
+        <!-- Test Data Info (Solo para desarrollo) -->
+        <div class="test-info" id="test-info">
+            <h4><i class="fas fa-flask"></i> Datos de Prueba</h4>
+            <div class="test-accounts">
+                <div class="test-account">
+                    <strong>Superusuario:</strong>
+                    <code onclick="fillTestData('admin')">admin_test / admin123</code>
+                </div>
+                <div class="test-account">
+                    <strong>Emprendimiento:</strong>
+                    <code onclick="fillTestData('client')">cliente_test / password123</code>
+                </div>
+            </div>
+            <button onclick="toggleTestInfo()" class="toggle-test-btn">
+                <i class="fas fa-eye-slash"></i> Ocultar
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/dashboard-router.js"></script>
+    <script>
+        // Variables globales
+        let isLoading = false;
+
+        // Inicialización cuando se carga la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Inicializando página de login...');
+            
+            // Verificar si ya hay una sesión activa
+            await initializeDashboardRouter();
+            
+            // Configurar eventos
+            setupLoginEvents();
+        });
+
+        /**
+         * Configura los event listeners del login
+         */
+        function setupLoginEvents() {
+            const loginForm = document.getElementById('unified-login-form');
+            
+            loginForm.addEventListener('submit', handleFormSubmit);
+            
+            // Auto-focus en el campo de usuario
+            document.getElementById('username').focus();
+        }
+
+        /**
+         * Maneja el submit del formulario de login
+         */
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            if (isLoading) return;
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('Por favor completa todos los campos');
+                return;
+            }
+            
+            try {
+                setLoading(true);
+                hideError();
+                
+                console.log('🔐 Intentando login para:', username);
+                
+                const result = await handleDashboardLogin(username, password);
+                
+                if (result.success) {
+                    console.log('✅ Login exitoso, redirigiendo a:', result.dashboardType);
+                    showSuccess(`Login exitoso. Redirigiendo al ${result.dashboardType === 'admin_dashboard' ? 'Panel de Administrador' : 'Panel de Emprendimiento'}...`);
+                } else {
+                    console.log('❌ Login fallido:', result.error);
+                    showError(result.error || 'Error en el login');
+                }
+                
+            } catch (error) {
+                console.error('Error inesperado en login:', error);
+                showError('Error de conexión. Verifica que el servidor esté funcionando.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        /**
+         * Muestra/oculta el estado de carga
+         */
+        function setLoading(loading) {
+            isLoading = loading;
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const submitBtn = document.getElementById('login-submit-btn');
+            
+            if (loading) {
+                loadingOverlay.classList.remove('hidden');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
+            } else {
+                loadingOverlay.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+            }
+        }
+
+        /**
+         * Muestra un mensaje de error
+         */
+        function showError(message) {
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            errorDiv.style.backgroundColor = '#ef4444';
+            errorDiv.style.color = 'white';
+        }
+
+        /**
+         * Oculta el mensaje de error
+         */
+        function hideError() {
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.classList.add('hidden');
+        }
+
+        /**
+         * Muestra un mensaje de éxito
+         */
+        function showSuccess(message) {
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            errorDiv.style.backgroundColor = '#22c55e';
+            errorDiv.style.color = 'white';
+        }
+
+        /**
+         * Toggle para mostrar/ocultar información de test
+         */
+        function toggleTestInfo() {
+            const testInfo = document.getElementById('test-info');
+            const toggleBtn = testInfo.querySelector('.toggle-test-btn');
+            
+            if (testInfo.style.display === 'none') {
+                testInfo.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar';
+            } else {
+                testInfo.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar datos de prueba';
+            }
+        }
+
+        /**
+         * Rellenar campos con datos de test (para desarrollo)
+         */
+        function fillTestData(type) {
+            if (type === 'admin') {
+                document.getElementById('username').value = 'admin_test';
+                document.getElementById('password').value = 'admin123';
+            } else if (type === 'client') {
+                document.getElementById('username').value = 'cliente_test';
+                document.getElementById('password').value = 'password123';
+            }
+        }
+
+        // Atajos de teclado para desarrollo
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.altKey) {
+                if (e.key === '1') {
+                    fillTestData('admin');
+                    e.preventDefault();
+                } else if (e.key === '2') {
+                    fillTestData('client');
+                    e.preventDefault();
+                }
+            }
+        });
+
+        console.log('🔐 Página de login lista');
+        console.log('💡 Atajos: Ctrl+Alt+1 (admin), Ctrl+Alt+2 (cliente)');
+    </script>
+</body>
+</html>

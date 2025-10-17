@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Emprendimiento - Rezervilo</title>
+    <link rel="stylesheet" href="css/dashboard-emprendimiento.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Login Container -->
+    <div id="emprendimiento-login-container" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1><i class="fas fa-store"></i> Emprendimiento</h1>
+                <p>Panel de Cliente</p>
+            </div>
+            
+            <form id="emprendimiento-login-form" class="login-form">
+                <div class="form-group">
+                    <label for="emprendimiento-username">Usuario</label>
+                    <input type="text" id="emprendimiento-username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="emprendimiento-password">Contraseña</label>
+                    <input type="password" id="emprendimiento-password" name="password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Acceder
+                </button>
+                
+                <div id="emprendimiento-login-error" class="error-message hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Emprendimiento Dashboard Container -->
+    <div id="emprendimiento-dashboard-container" class="dashboard-container hidden">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1><i class="fas fa-store"></i> <span id="emprendimiento-name">Mi Emprendimiento</span></h1>
+            </div>
+            <div class="header-right">
+                <span id="emprendimiento-username-display" class="user-info"></span>
+                <button id="emprendimiento-logout-btn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="dashboard-main">
+            <!-- Sidebar -->
+            <aside class="dashboard-sidebar">
+                <nav class="nav-menu">
+                    <a href="#" class="nav-item active" data-section="emprendimiento-dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="#" class="nav-item" data-section="emprendimiento-bots">
+                        <i class="fas fa-robot"></i> Mis Bots
+                    </a>
+                    <a href="#" class="nav-item" data-section="emprendimiento-calendar">
+                        <i class="fas fa-calendar-alt"></i> Calendario
+                    </a>
+                    <a href="#" class="nav-item" data-section="emprendimiento-reservations">
+                        <i class="fas fa-clipboard-list"></i> Reservas
+                    </a>
+                    <a href="#" class="nav-item" data-section="emprendimiento-services">
+                        <i class="fas fa-concierge-bell"></i> Servicios
+                    </a>
+                    <a href="#" class="nav-item" data-section="emprendimiento-profile">
+                        <i class="fas fa-user-circle"></i> Mi Perfil
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="dashboard-content">
+                <!-- Dashboard Section -->
+                <section id="emprendimiento-dashboard-section" class="content-section active">
+                    <div class="section-header">
+                        <h2>Bienvenido a tu Panel de Control</h2>
+                        <p>Gestiona tu negocio de manera eficiente</p>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-bots-emp">0</h3>
+                                <p>Bots Activos</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-reservations-emp">0</h3>
+                                <p>Reservas Totales</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="pending-reservations-emp">0</h3>
+                                <p>Reservas Pendientes</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card info">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="monthly-bookings-emp">0</h3>
+                                <p>Reservas Este Mes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Overview -->
+                    <div class="dashboard-overview">
+                        <div class="overview-section">
+                            <h3><i class="fas fa-calendar-plus"></i> Próximas Reservas</h3>
+                            <div id="upcoming-reservations-emp" class="reservations-preview">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                            <button class="view-all-btn" onclick="switchEmprendimientoSection('emprendimiento-reservations')">
+                                Ver todas las reservas
+                            </button>
+                        </div>
+
+                        <div class="overview-section">
+                            <h3><i class="fas fa-robot"></i> Estado de Bots</h3>
+                            <div id="bots-status-emp" class="bots-preview">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                            <button class="view-all-btn" onclick="switchEmprendimientoSection('emprendimiento-bots')">
+                                Gestionar bots
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h3><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
+                        <div class="actions-grid">
+                            <button class="action-btn" onclick="openEmprendimientoBotModal()">
+                                <i class="fas fa-plus"></i>
+                                <span>Agregar Bot</span>
+                            </button>
+                            <button class="action-btn" onclick="openEmprendimientoReservationModal()">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>Nueva Reserva</span>
+                            </button>
+                            <button class="action-btn" onclick="switchEmprendimientoSection('emprendimiento-calendar')">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Ver Calendario</span>
+                            </button>
+                            <button class="action-btn" onclick="openEmprendimientoServiceModal()">
+                                <i class="fas fa-concierge-bell"></i>
+                                <span>Agregar Servicio</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bots Section -->
+                <section id="emprendimiento-bots-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Gestión de Bots</h2>
+                        <button id="add-emprendimiento-bot-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> Agregar Bot
+                        </button>
+                    </div>
+
+                    <div id="emprendimiento-bots-grid" class="bots-grid">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- Calendar Section -->
+                <section id="emprendimiento-calendar-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Calendario de Reservas</h2>
+                        <div class="calendar-controls">
+                            <button id="prev-month-emp" class="calendar-nav-btn">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h3 id="current-month-year-emp">Octubre 2025</h3>
+                            <button id="next-month-emp" class="calendar-nav-btn">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="emprendimiento-calendar" class="calendar-container">
+                        <!-- Se genera dinámicamente -->
+                    </div>
+
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <span class="legend-color confirmed"></span>
+                            <span>Confirmadas</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color pending"></span>
+                            <span>Pendientes</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color cancelled"></span>
+                            <span>Canceladas</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reservations Section -->
+                <section id="emprendimiento-reservations-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Gestión de Reservas</h2>
+                        <button id="new-emprendimiento-reservation-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> Nueva Reserva
+                        </button>
+                    </div>
+
+                    <div class="filters-container">
+                        <select id="reservations-filter-bot" class="filter-select">
+                            <option value="">Todos los bots</option>
+                        </select>
+                        <select id="reservations-filter-status" class="filter-select">
+                            <option value="">Todos los estados</option>
+                            <option value="Confirmada">Confirmadas</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="Cancelada">Canceladas</option>
+                        </select>
+                        <input type="date" id="reservations-filter-date" class="date-filter">
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Servicio</th>
+                                    <th>Bot</th>
+                                    <th>Cliente</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emprendimiento-reservations-tbody">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Services Section -->
+                <section id="emprendimiento-services-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Gestión de Servicios</h2>
+                        <button id="add-emprendimiento-service-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> Agregar Servicio
+                        </button>
+                    </div>
+
+                    <div id="emprendimiento-services-grid" class="services-grid">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- Profile Section -->
+                <section id="emprendimiento-profile-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Mi Perfil</h2>
+                    </div>
+
+                    <div class="profile-container">
+                        <div class="profile-section">
+                            <h3><i class="fas fa-user"></i> Información Personal</h3>
+                            <form id="emprendimiento-profile-form">
+                                <div class="form-group">
+                                    <label for="profile-username">Usuario</label>
+                                    <input type="text" id="profile-username" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-email">Email</label>
+                                    <input type="email" id="profile-email" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-emprendimiento">Nombre del Emprendimiento</label>
+                                    <input type="text" id="profile-emprendimiento">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-telefono">Teléfono</label>
+                                    <input type="tel" id="profile-telefono">
+                                </div>
+                                <button type="submit" class="primary-btn">
+                                    <i class="fas fa-save"></i> Guardar Cambios
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="profile-section">
+                            <h3><i class="fas fa-key"></i> Cambiar Contraseña</h3>
+                            <form id="emprendimiento-password-form">
+                                <div class="form-group">
+                                    <label for="current-password">Contraseña Actual</label>
+                                    <input type="password" id="current-password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-password">Nueva Contraseña</label>
+                                    <input type="password" id="new-password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm-password">Confirmar Contraseña</label>
+                                    <input type="password" id="confirm-password" required>
+                                </div>
+                                <button type="submit" class="secondary-btn">
+                                    <i class="fas fa-key"></i> Cambiar Contraseña
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Bot Modal -->
+    <div id="emprendimiento-bot-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="emprendimiento-bot-modal-title">Agregar Bot</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="emprendimiento-bot-form">
+                    <div class="form-group">
+                        <label for="emp-bot-name">Nombre del Bot</label>
+                        <input type="text" id="emp-bot-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-bot-description">Descripción</label>
+                        <textarea id="emp-bot-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-bot-active">Estado</label>
+                        <select id="emp-bot-active">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-cancel secondary-btn">Cancelar</button>
+                <button class="modal-save primary-btn" onclick="handleEmprendimientoBotForm()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservation Modal -->
+    <div id="emprendimiento-reservation-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nueva Reserva</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="emprendimiento-reservation-form">
+                    <div class="form-group">
+                        <label for="emp-reservation-date">Fecha</label>
+                        <input type="date" id="emp-reservation-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-reservation-time">Hora</label>
+                        <input type="time" id="emp-reservation-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-reservation-bot">Bot</label>
+                        <select id="emp-reservation-bot" required>
+                            <option value="">Seleccionar bot...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-reservation-service">Servicio</label>
+                        <select id="emp-reservation-service" required>
+                            <option value="">Seleccionar servicio...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-reservation-notes">Notas</label>
+                        <textarea id="emp-reservation-notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-cancel secondary-btn">Cancelar</button>
+                <button class="modal-save primary-btn" onclick="handleEmprendimientoReservationForm()">Crear Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/emprendimiento-dashboard.js"></script>
+</body>
+</html>
