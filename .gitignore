@@ -1,0 +1,16 @@
+# Python / Django
+*.pyc
+__pycache__/
+*.sqlite3
+.env
+venv/
+.idea/
+.vscode/
+
+# Node.js
+node_modules/
+.npm
+
+# OS
+.DS_Store
+Thumbs.db
